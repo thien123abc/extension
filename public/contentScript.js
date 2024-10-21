@@ -1,3 +1,5 @@
+let currentPopup = null; // Biến toàn cục để lưu trữ popup hiện tại
+
 document.addEventListener('mouseup', function () {
   const selectedText = window.getSelection().toString().trim();
   if (selectedText) {
@@ -26,7 +28,11 @@ function createIcon(selectedText) {
   document.body.appendChild(icon);
 
   icon.addEventListener('click', () => {
-      showPopup(selectedText, rect);
+      // Đóng popup trước nếu có
+      if (currentPopup) {
+          currentPopup.remove();
+      }
+      currentPopup = showPopup(selectedText, rect);
       icon.remove();
   });
 }
@@ -49,6 +55,7 @@ function showPopup(selectedText, rect) {
   textElement.innerText = selectedText;
   textElement.style.textAlign = 'center'; // Canh giữa text
   textElement.style.marginBottom = '20px'; // Khoảng cách giữa text và close icon
+  textElement.style.marginRight = '20px';
   popup.appendChild(textElement);
 
   // Thêm biểu tượng "X" đỏ ở góc trên bên phải
@@ -57,14 +64,19 @@ function showPopup(selectedText, rect) {
   closeButton.style.color = 'red';
   closeButton.style.fontSize = '20px';
   closeButton.style.position = 'absolute';
-  closeButton.style.top = '2px';
-  closeButton.style.right = '5px';
+  closeButton.style.top = '5px';
+  closeButton.style.right = '10px';
   closeButton.style.cursor = 'pointer';
   closeButton.onclick = function() {
       popup.remove();
+      currentPopup = null; // Đặt lại biến khi popup bị đóng
   };
   popup.appendChild(closeButton);
 
   document.body.appendChild(popup);
-}
+  
+  // Cập nhật biến toàn cục
+  currentPopup = popup; // Lưu trữ popup hiện tại
 
+  return popup; // Trả về popup để có thể xóa sau này
+}
