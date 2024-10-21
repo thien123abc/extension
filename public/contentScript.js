@@ -1,5 +1,3 @@
-// public/contentScript.js
-
 document.addEventListener('mouseup', function () {
   const selectedText = window.getSelection().toString().trim();
   if (selectedText) {
@@ -43,10 +41,25 @@ function showPopup(selectedText, rect) {
   popup.style.padding = '10px';
   popup.style.zIndex = '99999';
   popup.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-  popup.innerText = selectedText;
+  popup.style.borderRadius = '5px'; // Thêm bo góc
+  popup.style.width = '200px'; // Chiều rộng cố định của popup
 
-  const closeButton = document.createElement('button');
-  closeButton.innerText = 'Close';
+  // Thêm nội dung text vào giữa
+  const textElement = document.createElement('div');
+  textElement.innerText = selectedText;
+  textElement.style.textAlign = 'center'; // Canh giữa text
+  textElement.style.marginBottom = '20px'; // Khoảng cách giữa text và close icon
+  popup.appendChild(textElement);
+
+  // Thêm biểu tượng "X" đỏ ở góc trên bên phải
+  const closeButton = document.createElement('span');
+  closeButton.innerHTML = '&times;'; // Biểu tượng dấu X
+  closeButton.style.color = 'red';
+  closeButton.style.fontSize = '20px';
+  closeButton.style.position = 'absolute';
+  closeButton.style.top = '2px';
+  closeButton.style.right = '5px';
+  closeButton.style.cursor = 'pointer';
   closeButton.onclick = function() {
       popup.remove();
   };
@@ -54,3 +67,4 @@ function showPopup(selectedText, rect) {
 
   document.body.appendChild(popup);
 }
+
