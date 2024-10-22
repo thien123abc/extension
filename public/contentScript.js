@@ -2,6 +2,8 @@ let currentPopup = null; // Biến toàn cục để lưu trữ popup hiện t�
 let targetElement = null;
 let flag = false;
 
+
+
 document.addEventListener('mouseup', function (event) {
   // Lấy tọa độ của con trỏ chuột
   const mouseX = event.clientX;
@@ -11,11 +13,11 @@ document.addEventListener('mouseup', function (event) {
     // Lấy phần tử tại tọa độ chuột
     targetElement = document.elementFromPoint(mouseX, mouseY);
     console.log('point', targetElement);
-    const selectedText = window.getSelection().toString().trim()||'img';
+    const selectedText = window.getSelection().toString().trim() || 'img';
     flag = true
     if (selectedText) {
-      console.log('selected',selectedText);
-      
+      console.log('selected', selectedText);
+
       createIcon(selectedText);
     }
   }
@@ -40,8 +42,8 @@ function createIcon(selectedText) {
   icon.style.cursor = 'pointer';
 
   const rect = window.getSelection().getRangeAt(0).getBoundingClientRect();
-  console.log('react',rect);
-  
+  console.log('react', rect);
+
   icon.style.top = `${rect.bottom + window.scrollY + 5}px`;
   icon.style.left = `${rect.left + window.scrollX}px`;
 
@@ -52,15 +54,14 @@ function createIcon(selectedText) {
     // if (currentPopup) {
     //   currentPopup.remove();
     // }
-    currentPopup = showPopup(selectedText||'img', rect);
+    currentPopup = showPopup(selectedText || 'img', rect);
     console.log('clicked icon');
     icon.remove();
   });
 }
 
 function showPopup(selectedText, rect) {
-  // console.log('selected:',selectedText);
-  
+
   const popup = document.createElement('div');
   popup.style.position = 'absolute';
   popup.style.top = `${rect.bottom + window.scrollY + 10}px`;
@@ -82,10 +83,12 @@ function showPopup(selectedText, rect) {
 
   // Kiểm tra nếu phần tử là hình ảnh
   if (selectedText === 'img') {
-    
+
+
+
     // Hiển thị nút lấy link ảnh
     const imgSrc = targetElement.src;
-    console.log('this is img',imgSrc);
+    console.log('this is img', imgSrc);
     textElement.innerText = 'Image selected.';
 
     // Thêm nút lấy link ảnh
@@ -138,6 +141,28 @@ function showPopup(selectedText, rect) {
   };
   popup.appendChild(htmlCssButton);
 
+  popup.appendChild(textElement);
+
+
+  // Thêm button lấy Network Data
+  if (selectedText === 'img') {
+    const networkButton = document.createElement('button');
+    networkButton.innerText = 'Network';
+    networkButton.style.marginBottom = '10px';
+    htmlCssButton.style.position = 'absolute';
+    htmlCssButton.style.top = '5px';
+    htmlCssButton.style.left = '80px';
+    networkButton.onclick = function () {
+      const networkData = getNetworkRequestsForImage(targetElement);
+      displayNetworkData(networkData);
+    }
+
+    popup.appendChild(networkButton);
+  };
+
+
+
+
   // Thêm biểu tượng "X" đỏ ở góc trên bên phải
   const closeButton = document.createElement('span');
   closeButton.innerHTML = '&times;';
@@ -148,7 +173,7 @@ function showPopup(selectedText, rect) {
   closeButton.style.right = '8px';
   closeButton.style.top = '0px';
   closeButton.onclick = function () {
-    flag=false
+    flag = false
     popup.remove();
     currentPopup = null; // Đặt lại biến khi popup bị đóng
   };
@@ -160,4 +185,30 @@ function showPopup(selectedText, rect) {
   currentPopup = popup; // Lưu trữ popup hiện tại
 
   return popup; // Trả về popup để có thể xóa sau này
+}
+
+
+// Lọc các yêu cầu mạng liên quan đến ảnh
+function getNetworkRequestsForImage(imageElement) {
+  const imageUrl = imageElement.src;
+  const resources = window.performance.getEntriesByType("resource");
+  let networkData = [];
+
+  resources.forEach((resource) => {
+    // Kiểm tra nếu URL của resource trùng với URL của ảnh
+    if (resource.name === imageUrl) {
+      networkData.push(resource);
+    }
+  });
+
+  return networkData;
+}
+
+// Hiển thị dữ liệu network
+function displayNetworkData(networkData) {
+  let networkInfo = '';
+  networkData.forEach((req, index) => {
+    networkInfo += `Request ${index + 1}:\nURL: ${req.name}\nType: ${req.initiatorType}\nDuration: ${req.duration}ms\n\n`;
+  });
+  alert(`Network Data:\n${networkInfo}`);
 }
