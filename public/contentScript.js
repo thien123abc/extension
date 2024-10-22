@@ -54,6 +54,9 @@ function createIcon(selectedText) {
     // if (currentPopup) {
     //   currentPopup.remove();
     // }
+    // Gửi dữ liệu đã bôi đen đến background.js
+    // chrome.runtime.sendMessage({ action: "sendSelectedText", text: selectedText });
+
     currentPopup = showPopup(selectedText || 'img', rect);
     console.log('clicked icon');
     icon.remove();
@@ -84,11 +87,10 @@ function showPopup(selectedText, rect) {
   // Kiểm tra nếu phần tử là hình ảnh
   if (selectedText === 'img') {
 
-
-
     // Hiển thị nút lấy link ảnh
     const imgSrc = targetElement.src;
     console.log('this is img', imgSrc);
+    chrome.runtime.sendMessage({ action: "sendSelectedText", img: imgSrc });
     textElement.innerText = 'Image selected.';
 
     // Thêm nút lấy link ảnh
@@ -101,6 +103,8 @@ function showPopup(selectedText, rect) {
   } else {
     // Nếu là văn bản, hiển thị văn bản đã chọn
     textElement.innerText = selectedText;
+
+    chrome.runtime.sendMessage({ action: "sendSelectedText", text: selectedText });
     // Thêm button copy
     const copyButton = document.createElement('button');
     copyButton.innerText = 'Copy';
@@ -115,6 +119,7 @@ function showPopup(selectedText, rect) {
     };
     popup.appendChild(copyButton);
   }
+
   // Thêm button lấy HTML
   const htmlCssButton = document.createElement('button');
   htmlCssButton.innerText = 'html/css';
@@ -123,8 +128,18 @@ function showPopup(selectedText, rect) {
   htmlCssButton.style.top = '5px';
   htmlCssButton.style.left = '50px';
   htmlCssButton.onclick = function () {
+
     const elementTag = targetElement.tagName.toLowerCase();
     const elementHTML = targetElement.outerHTML;
+
+    if (selectedText === 'img') {
+      chrome.runtime.sendMessage({ action: "sendSelectedText", html: elementHTML, img: targetElement.src });
+
+    } else {
+      chrome.runtime.sendMessage({ action: "sendSelectedText", html: elementHTML, text: selectedText });
+
+    }
+
 
     // Lấy CSS của phần tử
     const computedStyle = window.getComputedStyle(targetElement);
@@ -155,6 +170,7 @@ function showPopup(selectedText, rect) {
     networkButton.onclick = function () {
       const networkData = getNetworkRequestsForImage(targetElement);
       displayNetworkData(networkData);
+      chrome.runtime.sendMessage({ action: "sendSelectedText", html: targetElement.outerHTML, img: targetElement.src,network:JSON.stringify(networkData) });
     }
 
     popup.appendChild(networkButton);

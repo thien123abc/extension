@@ -2,11 +2,13 @@
 
 import React from 'react';
 
-const Popup = ({ selectedText }) => {
+const Popup = ({ selectedText ,html,img,network}) => {
     return (
         <div style={{ margin: '30px', width: '200px', fontFamily: 'Arial' }}>
-            <h3>Selected Text:</h3>
-            <p>{selectedText}</p>
+            {selectedText&&<p>text:{selectedText}</p>}
+            {img&&<p>img:{img}</p>}
+            {html&&<p>html:{html}</p>}
+            {network&&<p>network:{network}</p>}
         </div>
     );
 };

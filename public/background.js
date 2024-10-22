@@ -8,8 +8,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "showPopup") {
         sendResponse({ success: true });
-    } 
-    
+    }
+
     // Xử lý khi có yêu cầu lấy dữ liệu mạng
     else if (request.action === "getNetworkData") {
         let networkData = [];
@@ -32,4 +32,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Return true để giữ kênh kết nối mở trong khi sendResponse được xử lý không đồng bộ
     return true;
 });
-``
+
+let lastSelectedText = '';
+let img = '';
+let html = '';
+let network = '';
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "sendSelectedText") {
+        lastSelectedText = request.text; // Lưu trữ văn bản đã bôi đen
+        img = request.img;
+        html = request.html;
+        network = request.network;
+        sendResponse({ success: true });
+    }
+
+    // Nếu bạn muốn gửi dữ liệu này đến app.js, bạn có thể sử dụng một cách như sau:
+    else if (request.action === "getLastSelectedText") {
+        sendResponse({ text: lastSelectedText, img, html,network });
+    }
+
+    return true; // Giữ kênh kết nối mở
+});
